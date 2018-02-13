@@ -1,0 +1,22 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+	Captcha Source: <a href="http://www.detran.sp.gov.br/wps/PA_CNHWeb/jcaptcha?id=9999">http://www.detran.sp.gov.br/wps/PA_CNHWeb/jcaptcha?id=9999</a><br />
+	<br />
+	<div style ="width:220px;height:70px;overflow:hidden; display:inline-block"><img id="captcha" /></div> <a onclick="reload()" href="javascript:;">New Sample Captcha</a><br />
+	<input id="btnBreak" type="button" onclick="breakCaptcha()" value="Solve Captcha" /><br />
+	<div id="container" style="display:none">
+		Segmentation: <canvas id="segmentacao" width="220" height="70"></canvas><br />
+		Detected Text: <input type="text" id="ocr" />
+	</div>
+</body>
+
+	<script src="captcha.js"></script>
+	<script src="gocr.js"></script>
+
+</html>
