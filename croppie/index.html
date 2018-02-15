@@ -1,0 +1,27 @@
+<!DOCTYPE html> 
+<html lang ="en">
+    <head>
+        <meta charset="UTF-8" >
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>AI</title>
+		<link rel="stylesheet" href="./croppie.css" />
+		<!-- Insert this line above script imports  -->
+		<script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+		<script src="./jquery-1.12.4.min.js"></script>
+		<script src="./croppie.js"></script>
+		<!-- Insert this line after script imports -->
+		<script>if (window.module) module = window.module;</script>
+		<style>
+			#captcha-wrapper{ float: left; }
+		</style>
+    </head>
+    <body>
+		<div id="captcha-wrapper">
+			<div id="captcha"></div>
+			<button id="get-captcha">Get image letters</button>
+		</div>
+		<br clear />
+		<div id="img-holder"></div>
+		<script src="./index.js"></script>
+    </body>
+</html>
