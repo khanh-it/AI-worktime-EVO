@@ -2,9 +2,26 @@
 	// Require libs
 	const fs = require('fs');
 	const path = require('path');
+	const { exec } = require('child_process');
 	
-	/*
-	 | Helper: save captcha image
+	/**
+	 | 
+	 */
+	function captcha_resolve(filename, callback) {
+		let opts = {
+			'cwd': path.join(__dirname)
+		};
+		let proc = exec('python pyocr/index.py "' + filename + '"', opts, function(err, stdout, stderr){
+			if (err) {
+				return callback(new Error(stderr));
+			}
+			callback(null, stdout.trim());
+		});
+	}
+	// return captcha_resolve('C:\\Users\\Admin\\Documents\\AI-worktime-EVO\\datac\\1518794674968.png');
+	
+	/**
+	 | Helper: save captcha images
 	 */
 	function writeImgDataBase64ToFile(dataURL) {
 		let data = dataURL.split(',');
@@ -17,8 +34,8 @@
 				return console.log('write file failed: ', err);
 			}
 			//
-			console.log('write file OK');
-			let win = window.open('./croppie/index.html?imgsrc=' + filename, 'captcha splitter');
+			console.log('write file OK: ', filename);
+			let win = window.open(path.join(__dirname, './croppie/index.html') + '?imgsrc=' + filename, 'croppie');
 			let timer = setInterval(function(){
 				if (win.closed) {
 					return clearInterval(timer);
@@ -27,29 +44,43 @@
 					let hash = decodeURIComponent(((win.location + '').match(/#(.*)$/) || [])[1]);
 					hash = JSON.parse(hash);
 					if ('done' == (hash && hash.type)) {
-						//
-						console.log(hash);
+						// console.log(hash);
 						//
 						win.close();
+						//
+						captcha_resolve(filename, function(err, captcha){
+							// 
+							// Case: error
+							if (err) {
+								// Try again.
+								return glob.location.reload();
+							}
+							alert('captcha: ' + captcha);
+						});
 					}
 				} catch (e) {
-					//...
-					console.log(e);
+					if (e instanceof SyntaxError) {
+						// specific error
+					} else {
+						throw e; // let others bubble up
+					}
 				}
-			}, 2000);
+			}, 512);
 		});
 	}
 	
-	/*
+	/**
 	 | Helper: get image data
 	 | @see https://davidwalsh.name/convert-image-data-uri-javascript
 	 | @see https://stackoverflow.com/questions/1977871/check-if-an-image-is-loaded-no-errors-in-javascript
+	 | @see https://stackoverflow.com/questions/22710627/tainted-canvases-may-not-be-exported
 	 */
 	function getImgDataBase64(img, callback) {
 		// Dealing with cross domain images
+		let imgSrc = img.src;
+		img = new Image();
 		img.crossOrigin = 'anonymous';
-		
-		function imgOnload() {
+		img.onload = function() {
 			// Create an empty canvas element
 			var canvas = document.createElement("canvas");
 			canvas.width = img.width;
@@ -68,14 +99,8 @@
 			callback(dataURL);
 			// Return?
 			return dataURL;
-		}
-		// Case: image is loaded
-		if (img.naturalWidth) {
-			imgOnload();
-		// Case: image is not loaded
-		} else {
-			img.onload = imgOnload;
-		}
+		};
+		img.src = imgSrc;
 	}
 	// Re assign!
 	glob.getImgDataBase64 = getImgDataBase64;
