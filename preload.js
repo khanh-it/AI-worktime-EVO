@@ -1,3 +1,6 @@
+// <!-- Insert this line above script imports  -->
+if (typeof module === 'object') {window.module = module; module = undefined;}
+
 (function(glob){
 	// Require libs
 	const fs = require('fs');
@@ -55,7 +58,15 @@
 								// Try again.
 								return glob.location.reload();
 							}
-							alert('captcha: ' + captcha);
+							let EwtUserEmailLogin = document.getElementById('EwtUserEmailLogin');
+							let EwtUserPasswordLogin = document.getElementById('EwtUserPasswordLogin');
+							let EwtUserCaptcha = document.getElementById('EwtUserCaptcha');
+							let EwtUserLoginForm = document.getElementById('EwtUserLogin/Form');
+							EwtUserEmailLogin.value = "khanhdtp@evolableasia.vn";
+							EwtUserPasswordLogin.value = "!@KhanhJa_5288#$";
+							EwtUserCaptcha.value = captcha;
+							// alert('captcha: ' + captcha);
+							EwtUserLoginForm.submit();
 						});
 					}
 				} catch (e) {
@@ -78,9 +89,9 @@
 	function getImgDataBase64(img, callback) {
 		// Dealing with cross domain images
 		let imgSrc = img.src;
-		img = new Image();
+		// img = new Image();
 		img.crossOrigin = 'anonymous';
-		img.onload = function() {
+		/* img.onload = */function imgOnload() {
 			// Create an empty canvas element
 			var canvas = document.createElement("canvas");
 			canvas.width = img.width;
@@ -100,14 +111,18 @@
 			// Return?
 			return dataURL;
 		};
-		img.src = imgSrc;
+		imgOnload();
+		// img.src = imgSrc;
 	}
 	// Re assign!
 	glob.getImgDataBase64 = getImgDataBase64;
 	
 	// Load, get captcha image data
 	window.addEventListener('load', function(){
-		let img = document.querySelector('img');
+		// <!-- Insert this line after script imports -->
+		if (window.module) module = window.module;
+
+		let img = document.getElementById('captcha');
 		if (!img) {
 			return console.log('Captcha image not found!');
 		}

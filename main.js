@@ -17,11 +17,11 @@ function createWindow () {
   })
 
   // and load the index.html of the app.
-  win.loadURL(url.format({
+  win.loadURL('https://worktime.evolable.asia/' /* url.format({
     pathname: path.join(__dirname, 'index.html'),
     protocol: 'file:',
     slashes: true
-  }))
+  }) */)
 
   // Open the DevTools.
   win.webContents.openDevTools()
