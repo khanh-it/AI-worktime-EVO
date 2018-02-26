@@ -1,8 +1,12 @@
-// <!-- Insert this line above script imports  -->
-if (typeof module === 'object') {window.module = module; module = undefined;}
-
 (function(glob){
+	//
+	let preload = {
+		__dirname: __dirname, __filename: __filename
+	};
+	glob.preload = preload;
+
 	// Require libs
+	const elt = require('electron');
 	const fs = require('fs');
 	const path = require('path');
 	const { exec } = require('child_process');
@@ -38,13 +42,22 @@ if (typeof module === 'object') {window.module = module; module = undefined;}
 			}
 			//
 			console.log('write file OK: ', filename);
-			let win = window.open(path.join(__dirname, './croppie/index.html') + '?imgsrc=' + filename, 'croppie');
+			// let win = window.open(path.join(__dirname, './croppie/index.html') + '?imgsrc=' + filename, 'croppie');
+			let win = new elt.remote.BrowserWindow({
+				width: 800,
+				height: 600,
+				webPreferences: {
+					preload: path.join(__dirname, './croppie/index.js'),
+					nodeIntegration: false
+				}
+			});
+			win.loadURL(path.join(__dirname, './croppie/index.html') + '?imgsrc=' + filename);
 			let timer = setInterval(function(){
-				if (win.closed) {
+				if (win.isDestroyed() /* win.closed */) {
 					return clearInterval(timer);
 				}
 				try {
-					let hash = decodeURIComponent(((win.location + '').match(/#(.*)$/) || [])[1]);
+					let hash = decodeURIComponent((/* (win.location + '') */win.getURL().match(/#(.*)$/) || [])[1]);
 					hash = JSON.parse(hash);
 					if ('done' == (hash && hash.type)) {
 						// console.log(hash);
@@ -52,12 +65,20 @@ if (typeof module === 'object') {window.module = module; module = undefined;}
 						win.close();
 						//
 						captcha_resolve(filename, function(err, captcha){
-							// 
+							// Delete captcha file
+							let dirdatac = path.join(preload.__dirname, '/datac');
+							(fs.readdirSync(dirdatac) || []).forEach(function(fname) {
+								if (fname.match(/\.(jpe?g|png|bmp)$/i)) {
+									let filename = path.join(dirdatac, fname);
+									fs.unlink(filename, function(){});
+								}
+							});
 							// Case: error
 							if (err) {
 								// Try again.
 								return glob.location.reload();
 							}
+							console.log('captcha: ' + captcha);
 							let EwtUserEmailLogin = document.getElementById('EwtUserEmailLogin');
 							let EwtUserPasswordLogin = document.getElementById('EwtUserPasswordLogin');
 							let EwtUserCaptcha = document.getElementById('EwtUserCaptcha');
@@ -65,7 +86,6 @@ if (typeof module === 'object') {window.module = module; module = undefined;}
 							EwtUserEmailLogin.value = "khanhdtp@evolableasia.vn";
 							EwtUserPasswordLogin.value = "!@KhanhJa_5288#$";
 							EwtUserCaptcha.value = captcha;
-							// alert('captcha: ' + captcha);
 							EwtUserLoginForm.submit();
 						});
 					}
@@ -118,13 +138,11 @@ if (typeof module === 'object') {window.module = module; module = undefined;}
 	glob.getImgDataBase64 = getImgDataBase64;
 	
 	// Load, get captcha image data
-	window.addEventListener('load', function(){
-		// <!-- Insert this line after script imports -->
-		if (window.module) module = window.module;
-
+	glob.addEventListener('load', function(){
 		let img = document.getElementById('captcha');
 		if (!img) {
-			return console.log('Captcha image not found!');
+			console.log('Captcha image not found!');
+			glob.close();
 		}
 		getImgDataBase64(img, writeImgDataBase64ToFile);
 	});

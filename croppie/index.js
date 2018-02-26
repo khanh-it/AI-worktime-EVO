@@ -33,50 +33,53 @@
 		'translate3d(-182px, 1px, 0px) scale(1)'
 	];
 	
-	glob.jQuery(function($){
-		var $captcha = $('#captcha');
-		var vanilla = new Croppie($captcha.get(0), {
-			viewport: { width: 30, height: 30 },
-			boundary: { width: 500, height: 60 },
-			showZoomer: false,
-			// enableOrientation: true
-		});
-		var $getCaptcha =  $('#get-captcha').click(function() {
-			vanilla.bind({ url: imgsrc }).then(function(){
-				var i = 0;
-				function crop() {
-					var transform = transforms[i++];
-					if (!transform) {
-						if (imgFilenameLetters.length) {
-							console.log('imgFilenameLetters: ', imgFilenameLetters);
-						}
-						location.hash = encodeURIComponent(JSON.stringify({
-							type: 'done',
-							data: imgFilenameLetters
-						}));
-						return;
-					}
-					var $img = $captcha.find('img').css('transform', transform);
-					vanilla.result('base64').then(function(dataURL) {
-						//
-						$('<div />').html($('<img />').attr('src', dataURL)).appendTo('#img-holder');
-						//
-						writeImgDataBase64ToFile(dataURL, function(err, filename){
-							//
-							if (err) {
-								return console.log('write file failed: ', err);
-							} else {
-								imgFilenameLetters.push(filename);	
-							}
-							//
-							crop();
-						});
-					});	
-				}
-				crop();
+	// Ready
+	window.addEventListener('load', function(){
+		glob.jQuery(function($){
+			var $captcha = $('#captcha');
+			var vanilla = new Croppie($captcha.get(0), {
+				viewport: { width: 30, height: 30 },
+				boundary: { width: 500, height: 60 },
+				showZoomer: false,
+				// enableOrientation: true
 			});
+			var $getCaptcha =  $('#get-captcha').click(function() {
+				vanilla.bind({ url: imgsrc }).then(function(){
+					var i = 0;
+					function crop() {
+						var transform = transforms[i++];
+						if (!transform) {
+							if (imgFilenameLetters.length) {
+								console.log('imgFilenameLetters: ', imgFilenameLetters);
+							}
+							location.hash = encodeURIComponent(JSON.stringify({
+								type: 'done',
+								data: imgFilenameLetters
+							}));
+							return;
+						}
+						var $img = $captcha.find('img').css('transform', transform);
+						vanilla.result('base64').then(function(dataURL) {
+							//
+							$('<div />').html($('<img />').attr('src', dataURL)).appendTo('#img-holder');
+							//
+							writeImgDataBase64ToFile(dataURL, function(err, filename){
+								//
+								if (err) {
+									return console.log('write file failed: ', err);
+								} else {
+									imgFilenameLetters.push(filename);	
+								}
+								//
+								crop();
+							});
+						});	
+					}
+					crop();
+				});
+			});
+			// Auto run...
+			setTimeout(function(){ $getCaptcha.click(); }, 1 * 0);
 		});
-		// Auto run...
-		setTimeout(function(){ $getCaptcha.click(); }, 1 * 0);
 	});
 })(window);

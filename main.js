@@ -12,7 +12,8 @@ function createWindow () {
     width: 1024,
 	height: 768,
 	webPreferences: {
-	  preload: path.join(__dirname, 'preload.js')
+	  preload: path.join(__dirname, 'preload.js'),
+	  nodeIntegration: false
 	}
   })
 
@@ -24,7 +25,7 @@ function createWindow () {
   }) */)
 
   // Open the DevTools.
-  win.webContents.openDevTools()
+  // win.webContents.openDevTools()
 
   // Emitted when the window is closed.
   win.on('closed', () => {
