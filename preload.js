@@ -36,68 +36,67 @@
 		let filename = path.join(__dirname, ('./datac/' + Date.now().toString() + '.' + ext));
 		let buf = Buffer.from(data[1], 'base64');
 		// write file
-		fs.writeFile(filename, buf, function(err){
-			if (err) {
-				return console.log('write file failed: ', err);
+		console.log('being write file!');
+		let err = fs.writeFileSync(filename, buf);
+		if (err) {
+			return console.log('write file failed: ', err);
+		}
+		console.log('write file OK: ', filename);
+		// let win = window.open(path.join(__dirname, './croppie/index.html') + '?imgsrc=' + filename, 'croppie');
+		let win = new elt.remote.BrowserWindow({
+			width: 800,
+			height: 600,
+			webPreferences: {
+				preload: path.join(__dirname, './croppie/index.js'),
+				nodeIntegration: false
 			}
-			//
-			console.log('write file OK: ', filename);
-			// let win = window.open(path.join(__dirname, './croppie/index.html') + '?imgsrc=' + filename, 'croppie');
-			let win = new elt.remote.BrowserWindow({
-				width: 800,
-				height: 600,
-				webPreferences: {
-					preload: path.join(__dirname, './croppie/index.js'),
-					nodeIntegration: false
-				}
-			});
-			win.loadURL(path.join(__dirname, './croppie/index.html') + '?imgsrc=' + filename);
-			let timer = setInterval(function(){
-				if (win.isDestroyed() /* win.closed */) {
-					return clearInterval(timer);
-				}
-				try {
-					let hash = decodeURIComponent((/* (win.location + '') */win.getURL().match(/#(.*)$/) || [])[1]);
-					hash = JSON.parse(hash);
-					if ('done' == (hash && hash.type)) {
-						// console.log(hash);
-						//
-						win.close();
-						//
-						captcha_resolve(filename, function(err, captcha){
-							// Delete captcha file
-							let dirdatac = path.join(preload.__dirname, '/datac');
-							(fs.readdirSync(dirdatac) || []).forEach(function(fname) {
-								if (fname.match(/\.(jpe?g|png|bmp)$/i)) {
-									let filename = path.join(dirdatac, fname);
-									fs.unlink(filename, function(){});
-								}
-							});
-							// Case: error
-							if (err) {
-								// Try again.
-								return glob.location.reload();
-							}
-							console.log('captcha: ' + captcha);
-							let EwtUserEmailLogin = document.getElementById('EwtUserEmailLogin');
-							let EwtUserPasswordLogin = document.getElementById('EwtUserPasswordLogin');
-							let EwtUserCaptcha = document.getElementById('EwtUserCaptcha');
-							let EwtUserLoginForm = document.getElementById('EwtUserLogin/Form');
-							EwtUserEmailLogin.value = "khanhdtp@evolableasia.vn";
-							EwtUserPasswordLogin.value = "!@KhanhJa_5288#$";
-							EwtUserCaptcha.value = captcha;
-							EwtUserLoginForm.submit();
-						});
-					}
-				} catch (e) {
-					if (e instanceof SyntaxError) {
-						// specific error
-					} else {
-						throw e; // let others bubble up
-					}
-				}
-			}, 512);
 		});
+		win.loadURL(path.join(__dirname, './croppie/index.html') + '?imgsrc=' + filename);
+		let timer = setInterval(function(){
+			if (win.isDestroyed() /* win.closed */) {
+				return clearInterval(timer);
+			}
+			try {
+				let hash = decodeURIComponent((/* (win.location + '') */win.getURL().match(/#(.*)$/) || [])[1]);
+				hash = JSON.parse(hash);
+				if ('done' == (hash && hash.type)) {
+					// console.log(hash);
+					//
+					win.close();
+					//
+					captcha_resolve(filename, function(err, captcha){
+						// Delete captcha file
+						let dirdatac = path.join(preload.__dirname, '/datac');
+						(fs.readdirSync(dirdatac) || []).forEach(function(fname) {
+							if (fname.match(/\.(jpe?g|png|bmp)$/i)) {
+								let filename = path.join(dirdatac, fname);
+								fs.unlink(filename, function(){});
+							}
+						});
+						// Case: error
+						if (err) {
+							// Try again.
+							return glob.location.reload();
+						}
+						console.log('captcha: ' + captcha);
+						let EwtUserEmailLogin = document.getElementById('EwtUserEmailLogin');
+						let EwtUserPasswordLogin = document.getElementById('EwtUserPasswordLogin');
+						let EwtUserCaptcha = document.getElementById('EwtUserCaptcha');
+						let EwtUserLoginForm = document.getElementById('EwtUserLogin/Form');
+						EwtUserEmailLogin.value = "khanhdtp@evolableasia.vn";
+						EwtUserPasswordLogin.value = "!@KhanhJa_5288#$";
+						EwtUserCaptcha.value = captcha;
+						EwtUserLoginForm.submit();
+					});
+				}
+			} catch (e) {
+				if (e instanceof SyntaxError) {
+					// specific error
+				} else {
+					throw e; // let others bubble up
+				}
+			}
+		}, 512);
 	}
 	
 	/**
