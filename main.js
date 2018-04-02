@@ -13,12 +13,13 @@ function createWindow () {
 	height: 768,
 	webPreferences: {
 	  preload: path.join(__dirname, 'preload.js'),
-	  nodeIntegration: false
+	  nodeIntegration: false,
+	  partition: 'persist:default'
 	}
   })
 
   // and load the index.html of the app.
-  win.loadURL('https://worktime.evolable.asia/' /* url.format({
+  win.loadURL('https://gate.evolable.asia/' /* url.format({
     pathname: path.join(__dirname, 'index.html'),
     protocol: 'file:',
     slashes: true
